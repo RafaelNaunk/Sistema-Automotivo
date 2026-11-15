@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b36">
+  <title>Estoque de veículos · Sistema Automotivo</title>
+  <link rel="stylesheet" href="estilo.css">
+  <script src="estoque.js" defer></script>
+</head>
+<body>
+  <a href="#principal" class="pular">Ir para o conteúdo</a>
+  <header class="barra">
+    <div class="limite topo">
+      <div class="identidade"><span class="simbolo" aria-hidden="true"><i></i><i></i><i></i></span>Sistema Automotivo</div>
+      <nav aria-label="Navegação principal">
+        <button type="button" id="nav-estoque" aria-current="page">Estoque</button>
+        <button type="button" id="nav-catalogo">Marcas e modelos</button>
+      </nav>
+    </div>
+  </header>
+  <main id="principal" class="limite" tabindex="-1">
+    <div id="aviso" role="status" aria-live="polite" aria-atomic="true"></div>
+    <section id="tela-estoque" aria-labelledby="titulo-estoque">
+      <div class="titulo-linha">
+        <h1 id="titulo-estoque">Estoque de veículos</h1>
+        <button type="button" class="primario" id="novo-veiculo"><span aria-hidden="true">＋</span> Cadastrar veículo</button>
+      </div>
+      <section class="painel filtros" aria-labelledby="titulo-filtros">
+        <h2 id="titulo-filtros">Filtros de consulta</h2>
+        <form id="form-filtros">
+          <div class="grade-filtros">
+            <label>Marca<select id="f-marca" name="marcaId"><option value="">Todas as marcas</option></select></label>
+            <label>Modelo<select id="f-modelo" name="modeloId"><option value="">Todos os modelos</option></select></label>
+            <label>Tipo<select id="f-tipo" name="tipo"></select></label>
+            <label>Status<select id="f-status" name="status"></select></label>
+            <label>Ano de fabricação<input id="f-ano" name="ano" type="number" min="1886" step="1" placeholder="Todos os anos"></label>
+            <label>Preço mínimo (R$)<input id="f-preco-min" name="precoMin" type="number" min="0" step="0.01" placeholder="0,00"></label>
+            <label>Preço máximo (R$)<input id="f-preco-max" name="precoMax" type="number" min="0" step="0.01" placeholder="Sem limite"></label>
+          </div>
+          <div class="acoes-filtros">
+            <button type="button" id="limpar-filtros" class="texto">Limpar filtros</button>
+            <button id="aplicar-filtros" class="secundario">Aplicar filtros</button>
+          </div>
+        </form>
+      </section>
+      <section class="painel estoque" aria-labelledby="titulo-lista">
+        <div class="cabecalho-painel"><h2 id="titulo-lista">Veículos em estoque</h2><span id="resultado-contagem" aria-live="polite"></span></div>
+        <div class="rolagem" tabindex="0" role="region" aria-label="Tabela de veículos">
+          <table>
+            <thead><tr><th scope="col">Veículo</th><th scope="col">Ano / cor</th><th scope="col">Quilometragem</th><th scope="col">Preço</th><th scope="col">Status</th><th scope="col">Ações</th></tr></thead>
+            <tbody id="linhas-veiculos"></tbody>
+          </table>
+        </div>
+        <p id="vazio" class="vazio" role="status">Carregando veículos…</p>
+      </section>
+    </section>
+
+    <section id="tela-catalogo" hidden aria-labelledby="titulo-catalogo">
+      <div class="titulo-linha"><h1 id="titulo-catalogo">Marcas e modelos</h1></div>
+      <p class="introducao">Cadastre a marca e associe um modelo a ela para usá-lo no estoque.</p>
+      <div class="catalogo">
+        <section class="painel ficha">
+          <h2>Cadastrar marca</h2>
+          <form id="form-marca">
+            <label>Nome da marca<input id="marca-nome" name="nome" required maxlength="80" placeholder="Ex.: Toyota"></label>
+            <button id="salvar-marca" class="primario">Cadastrar marca</button>
+          </form>
+          <h3>Marcas cadastradas</h3>
+          <ul id="lista-marcas" class="lista"></ul>
+        </section>
+        <section class="painel ficha">
+          <h2>Cadastrar modelo</h2>
+          <form id="form-modelo">
+            <label>Marca do modelo<select id="modelo-marca" name="marcaId" required></select></label>
+            <label>Nome do modelo<input id="modelo-nome" name="nome" required maxlength="80" placeholder="Ex.: Corolla"></label>
+            <button id="salvar-modelo" class="primario">Cadastrar modelo</button>
+          </form>
+          <h3>Modelos cadastrados</h3>
+          <ul id="lista-modelos" class="lista"></ul>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="dialogo-cadastro" aria-labelledby="titulo-cadastro">
+    <div class="cabecalho-dialogo"><h2 id="titulo-cadastro">Cadastrar veículo</h2><button type="button" class="fechar" aria-label="Fechar cadastro">×</button></div>
+    <p id="ajuda-catalogo" class="mensagem local" hidden>Cadastre uma marca e um modelo antes de incluir um veículo. <button type="button" id="ir-catalogo" class="link">Abrir marcas e modelos</button></p>
+    <form id="form-veiculo">
+      <div class="campos">
+        <label>Marca<select id="cad-marca" required></select></label>
+        <label>Modelo<select id="cad-modelo" required></select></label>
+        <label>Ano de fabricação<input id="cad-ano" type="number" min="1886" step="1" required></label>
+        <label>Cor<input id="cad-cor" maxlength="80" required></label>
+        <label>Preço (R$)<input id="cad-preco" type="number" min="0.01" step="0.01" required></label>
+        <label>Quilometragem (km)<input id="cad-km" type="number" min="0" step="1" required></label>
+        <label>Tipo<select id="cad-tipo" required></select></label>
+        <label>Status<select id="cad-status" required></select></label>
+      </div>
+      <p class="erro-local" role="alert" hidden></p>
+      <div class="rodape-dialogo"><button type="button" class="cancelar secundario">Cancelar</button><button id="salvar-veiculo" class="primario">Cadastrar veículo</button></div>
+    </form>
+  </dialog>
+  <dialog id="dialogo-edicao" aria-labelledby="titulo-edicao">
+    <div class="cabecalho-dialogo"><h2 id="titulo-edicao">Editar veículo</h2><button type="button" class="fechar" aria-label="Fechar edição">×</button></div>
+    <p id="descricao-edicao" class="detalhe"></p>
+    <form id="form-edicao">
+      <div class="campos">
+        <label>Preço (R$)<input id="ed-preco" type="number" min="0.01" step="0.01" required></label>
+        <label>Quilometragem (km)<input id="ed-km" type="number" min="0" step="1" required></label>
+        <label>Status<select id="ed-status" required></select></label>
+      </div>
+      <p class="erro-local" role="alert" hidden></p>
+      <div class="rodape-dialogo"><button type="button" class="cancelar secundario">Cancelar</button><button id="salvar-edicao" class="primario">Salvar alterações</button></div>
+    </form>
+  </dialog>
+  <dialog id="dialogo-exclusao" aria-labelledby="titulo-exclusao">
+    <div class="cabecalho-dialogo"><h2 id="titulo-exclusao">Excluir veículo?</h2><button type="button" class="fechar" aria-label="Fechar exclusão">×</button></div>
+    <p id="descricao-exclusao" class="detalhe"></p>
+    <p>O registro será removido do estoque permanentemente.</p>
+    <form id="form-exclusao">
+      <p class="erro-local" role="alert" hidden></p>
+      <div class="rodape-dialogo"><button type="button" class="cancelar secundario" autofocus>Cancelar</button><button id="confirmar-exclusao" class="perigo">Excluir veículo</button></div>
+    </form>
+  </dialog>
+  <dialog id="dialogo-exclusao-marca" aria-labelledby="titulo-exclusao-marca" aria-describedby="descricao-exclusao-marca vinculos-exclusao-marca">
+    <div class="cabecalho-dialogo"><h2 id="titulo-exclusao-marca">Excluir marca?</h2><button type="button" class="fechar" aria-label="Fechar exclusão de marca">×</button></div>
+    <p id="descricao-exclusao-marca" class="detalhe"></p>
+    <p id="vinculos-exclusao-marca"></p>
+    <form id="form-exclusao-marca">
+      <p id="erro-exclusao-marca" class="erro-local" role="alert" hidden></p>
+      <div class="rodape-dialogo"><button type="button" id="cancelar-exclusao-marca" class="cancelar secundario" autofocus>Cancelar</button><button id="confirmar-exclusao-marca" class="perigo">Excluir marca</button></div>
+    </form>
+  </dialog>
+  <dialog id="dialogo-renomear-marca" aria-labelledby="titulo-renomear-marca" aria-describedby="descricao-renomear-marca">
+    <div class="cabecalho-dialogo"><h2 id="titulo-renomear-marca">Renomear marca</h2><button type="button" class="fechar" aria-label="Fechar alteração de nome">×</button></div>
+    <p id="descricao-renomear-marca" class="detalhe"></p>
+    <form id="form-renomear-marca">
+      <label>Novo nome da marca<input id="novo-nome-marca" name="nome" required maxlength="80"></label>
+      <p id="erro-renomear-marca" class="erro-local" role="alert" hidden></p>
+      <div class="rodape-dialogo"><button type="button" class="cancelar secundario">Cancelar</button><button id="salvar-nome-marca" class="primario">Salvar nome</button></div>
+    </form>
+  </dialog>
+  <dialog id="dialogo-editar-modelo" aria-labelledby="titulo-editar-modelo" aria-describedby="descricao-editar-modelo">
+    <div class="cabecalho-dialogo"><h2 id="titulo-editar-modelo">Editar modelo</h2><button type="button" class="fechar" aria-label="Fechar edição de modelo">×</button></div>
+    <p id="descricao-editar-modelo" class="detalhe"></p>
+    <form id="form-editar-modelo">
+      <div class="campos">
+        <label>Marca do modelo<select id="editar-modelo-marca" name="marcaId" required></select></label>
+        <label>Nome do modelo<input id="editar-modelo-nome" name="nome" required maxlength="80"></label>
+      </div>
+      <p id="erro-editar-modelo" class="erro-local" role="alert" hidden></p>
+      <div class="rodape-dialogo"><button type="button" class="cancelar secundario">Cancelar</button><button id="salvar-edicao-modelo" class="primario">Salvar alterações</button></div>
+    </form>
+  </dialog>
+  <dialog id="dialogo-excluir-modelo" aria-labelledby="titulo-excluir-modelo" aria-describedby="descricao-excluir-modelo vinculos-excluir-modelo">
+    <div class="cabecalho-dialogo"><h2 id="titulo-excluir-modelo">Excluir modelo?</h2><button type="button" class="fechar" aria-label="Fechar exclusão de modelo">×</button></div>
+    <p id="descricao-excluir-modelo" class="detalhe"></p>
+    <p id="vinculos-excluir-modelo" role="status"></p>
+    <form id="form-excluir-modelo">
+      <p id="erro-excluir-modelo" class="erro-local" role="alert" hidden></p>
+      <div class="rodape-dialogo"><button type="button" id="cancelar-exclusao-modelo" class="cancelar secundario" autofocus>Cancelar</button><button id="confirmar-exclusao-modelo" class="perigo" disabled>Excluir modelo</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

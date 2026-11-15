@@ -1,0 +1,16 @@
+# Pacote pronto para rodar: fica fora do repositório
+runtime/
+*.jar
+Iniciar-Estoque.cmd
+Comece-aqui.md
+
+# Banco de dados local e arquivos gerados
+dados/
+target/
+*.log
+.env
+
+# IDEs
+.vscode/
+.idea/
+*.iml
